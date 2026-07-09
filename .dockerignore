@@ -1,0 +1,8 @@
+.git
+.github
+*.md
+docker-compose.yml
+config.example.toml
+config.toml
+dist
+public

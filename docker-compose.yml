@@ -1,0 +1,38 @@
+services:
+  web:
+    image: zzci/web
+    # build: .                       # uncomment to build from this repo instead
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    volumes:
+      - ./dist:/web:ro               # your static files -> document root
+      # - ./config.toml:/etc/sws/config.toml:ro   # only for advanced routing
+    # Everything is driven by SERVER_* environment variables.
+    # Full list: https://static-web-server.net/configuration/environment-variables/
+    environment:
+      # --- core ---
+      SERVER_ROOT: /web
+      SERVER_LOG_LEVEL: warn         # error | warn | info | debug | trace
+      # --- performance ---
+      SERVER_COMPRESSION: "true"          # gzip / brotli / zstd / deflate
+      SERVER_COMPRESSION_STATIC: "true"   # serve *.gz / *.br / *.zst siblings
+      SERVER_CACHE_CONTROL_HEADERS: "true"
+      # --- hardening ---
+      SERVER_SECURITY_HEADERS: "true"     # HSTS / X-Frame-Options / ...
+      # --- ops ---
+      SERVER_HEALTH: "true"               # /health endpoint (used below)
+      # --- SPA routing (uncomment for React / Vue / ...) ---
+      # SERVER_FALLBACK_PAGE: /web/index.html
+      # --- CORS ---
+      # SERVER_CORS_ALLOW_ORIGINS: "*"
+      # --- advanced: headers / redirects / rewrites have no env var,
+      #     point to a mounted TOML file instead (see config.example.toml) ---
+      # SERVER_CONFIG_FILE: /etc/sws/config.toml
+    restart: unless-stopped
+    healthcheck:
+      # Requires SERVER_HEALTH=true. wget ships with the Alpine base image.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:80/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

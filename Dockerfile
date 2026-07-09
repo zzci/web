@@ -1,6 +1,6 @@
-FROM alpine:3.21
+FROM alpine:3.24
 
-ARG SWS_VERSION=2.41.0
+ARG SWS_VERSION=2.43.0
 ARG TARGETARCH
 
 RUN apk add --no-cache ca-certificates tzdata && \
@@ -11,17 +11,17 @@ RUN apk add --no-cache ca-certificates tzdata && \
     chmod +x /usr/local/bin/static-web-server && \
     rm -rf /tmp/*
 
-RUN mkdir -p /public
+RUN mkdir -p /web
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-WORKDIR /public
+WORKDIR /web
 
 ENV SERVER_PORT=80 \
-    SERVER_ROOT=/public \
-    SERVER_LOG_LEVEL=info
+    SERVER_ROOT=/web \
+    SERVER_LOG_LEVEL=warn
 
 EXPOSE 80
 
-CMD ["docker-entrypoint.sh"]
+ENTRYPOINT ["docker-entrypoint.sh"]

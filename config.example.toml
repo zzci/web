@@ -1,0 +1,76 @@
+# Static Web Server — example configuration.
+#
+# Enable it by mounting this file into the container and pointing
+# SERVER_CONFIG_FILE at it:
+#
+#   docker run --rm -p 8080:80 \
+#     -v "$PWD/dist:/web:ro" \
+#     -v "$PWD/config.toml:/etc/sws/config.toml:ro" \
+#     -e SERVER_CONFIG_FILE=/etc/sws/config.toml \
+#     zzci/web
+#
+# Config-file values take precedence over environment variables and CLI flags.
+# Reference: https://static-web-server.net/configuration/config-file/
+
+[general]
+host = "::"
+port = 80
+root = "/web"
+log-level = "warn"
+
+# Files served for trailing-slash / directory requests.
+index-files = "index.html"
+
+# Compression is negotiated per request (gzip, deflate, brotli, zstd).
+compression = true
+# Serve pre-compressed siblings (*.gz, *.br, *.zst) straight from disk.
+compression-static = true
+
+# Per-file-type Cache-Control headers (fingerprinted assets get long max-age).
+cache-control-headers = true
+
+# Common hardening headers (HSTS, X-Frame-Options, ...). Enable for HTTPS sites.
+security-headers = false
+
+# Directory browsing — keep disabled for production sites.
+directory-listing = false
+
+# Health-check endpoint at /health (HTTP 200). Handy for orchestrators.
+health = true
+
+# Custom error pages (relative to the document root). SWS also picks these up
+# automatically if named 404.html / 50x.html.
+# page404 = "/web/404.html"
+# page50x = "/web/50x.html"
+
+# --- Single Page Application ------------------------------------------------
+# Serve index.html with a 200 status for unknown routes (client-side routing).
+# The path is NOT relative to the root.
+# page-fallback = "/web/index.html"
+
+[advanced]
+
+# Extra response headers for matching files.
+[[advanced.headers]]
+source = "/**/*.{js,mjs,css,woff2,png,jpg,jpeg,gif,svg,ico}"
+headers = { Cache-Control = "public, max-age=31536000, immutable" }
+
+[[advanced.headers]]
+source = "**/*.html"
+headers = { Cache-Control = "public, max-age=0, must-revalidate" }
+
+# Permanent/temporary redirects.
+# [[advanced.redirects]]
+# source = "/old-page"
+# destination = "/new-page"
+# kind = 301
+
+# Internal rewrites (URL stays the same). Add `redirect = 301` to redirect.
+# [[advanced.rewrites]]
+# source = "/legacy/{*}"
+# destination = "/$1"
+
+# Serve different roots per Host header.
+# [[advanced.virtual-hosts]]
+# host = "blog.example.com"
+# root = "/var/www/blog"

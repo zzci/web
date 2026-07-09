@@ -17,5 +17,5 @@ fi
 exec static-web-server \
   --host "${SERVER_HOST:-::}" \
   --port "${SERVER_PORT:-80}" \
-  --root "${SERVER_ROOT:-/public}" \
-  --log-level "${SERVER_LOG_LEVEL:-info}"
+  --root "${SERVER_ROOT:-/web}" \
+  --log-level "${SERVER_LOG_LEVEL:-warn}"
